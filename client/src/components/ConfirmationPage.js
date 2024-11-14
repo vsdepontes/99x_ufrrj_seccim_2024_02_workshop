@@ -1,30 +1,41 @@
-// src/components/ConfirmationPage.js
 import React from "react";
-import { Button, Typography } from "@mui/material";
+import { Button, Typography, Box } from "@mui/material";
 
-const ConfirmationPage = ({ handleGoHome }) => {
+const ConfirmationPage = ({ email, handleGoHome }) => {
   return (
-    <div>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        textAlign: "center",
+        padding: 2,
+        overflow: "hidden",
+      }}
+    >
       <Typography
         variant="h3"
-        align="center"
-        style={{ color: "green", fontWeight: "bold" }}
+        sx={{
+          color: "green",
+          fontWeight: "bold",
+          marginBottom: 2, // Add spacing between title and body
+        }}
       >
         Booking Confirmed!
       </Typography>
-      <Typography variant="body1" align="center">
-        Please check your email for the confirmation
+      <Typography variant="body1" sx={{ marginBottom: 3 }}>
+        Please check your email for the confirmation.
       </Typography>
       <Button
         variant="contained"
         color="primary"
-        fullWidth
-        sx={{ marginTop: 3 }}
+        sx={{ marginTop: 3, padding: 1.5, borderRadius: 3, width: "200px" }}
         onClick={handleGoHome}
       >
         Go to Homepage
       </Button>
-    </div>
+    </Box>
   );
 };
 

@@ -2,16 +2,15 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
+  "devDependencies": {
+    "aws-cdk-lib": "^2.166.0",
+    "constructs": "^10.4.2"
+  },
   "dependencies": {
-    "@emotion/react": "^11.13.3",
-    "@emotion/styled": "^11.13.0",
+    "@mui/icons-material": "^6.1.6",
     "@mui/material": "^6.1.6",
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.28.0",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },
@@ -19,7 +18,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy": "npm run build && cd infrastructure && npx cdk@2.166.0 deploy"
   },
   "eslintConfig": {
     "extends": [

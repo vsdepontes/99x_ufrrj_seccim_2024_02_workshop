@@ -1,0 +1,20 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "scripts": {
+    "deploy": "cd infrastructure && npx cdk@2.166.0 deploy"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "aws-cdk-lib": "^2.166.0",
+    "constructs": "^10.4.2"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.687.0",
+    "@aws-sdk/client-sfn": "^3.687.0",
+    "@aws-sdk/lib-dynamodb": "^3.687.0",
+    "uuid": "^11.0.3"
+  }
+}

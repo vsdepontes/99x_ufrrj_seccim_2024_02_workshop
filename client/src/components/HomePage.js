@@ -1,82 +1,177 @@
-// src/components/HomePage.js
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Typography,
-  Box,
   Grid,
   Card,
   CardContent,
-  CardMedia,
+  Box,
+  LinearProgress,
+  CircularProgress,
 } from "@mui/material";
+import DateRangeOutlinedIcon from "@mui/icons-material/DateRangeOutlined";
+import ChairAltOutlinedIcon from "@mui/icons-material/ChairAltOutlined";
+import { getSeats, makeBooking } from "../services/movieService";
+import { configs } from '../utils/configs';
+import { getSessionDateString } from '../utils/dateHelper';
 
 const HomePage = ({
-  selectedMovie,
-  tomorrowDate,
+  movieName,
   selectedSeat,
   handleSeatSelect,
   handleNextStep,
+  setPaymentCode,
 }) => {
-  // Seat layout (can be customized)
-  const seats = [
-    ["A1", "A2", "A3", "A4"],
-    ["B1", "B2", "B3", "B4"],
-    ["C1", "C2", "C3", "C4"],
-    ["D1", "D2", "D3", "D4"],
-  ];
+  const [seats, setSeats] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isMakingBooking, setIsMakingBooking] = useState(false);
+
+  useEffect(() => {
+    const sessionData = {
+      theaterId: configs.theaterId,
+      roomId: configs.roomId,
+      sessionId: configs.sessionId,
+    }
+    getSeats(sessionData)
+      .then((seats) => {
+        setIsLoading(true);
+        setSeats(seats);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, []);
+
+  const nextButtonClick = async () => {
+    setIsMakingBooking(true);
+    makeBooking({
+      theaterId: configs.theaterId,
+      roomId: configs.roomId,
+      sessionId: configs.sessionId,
+      seatId: selectedSeat,
+      customerId: configs.customerId,
+      movieId: configs.movieId,
+    })
+      .then((paymentCode) => {
+        setPaymentCode(paymentCode);
+        handleNextStep();
+      })
+      .finally(() => {
+        setIsMakingBooking(false);
+      });
+  };
 
   return (
-    <Card sx={{ marginBottom: 3 }}>
+    <Card sx={{ marginBottom: 3, borderRadius: 2 }}>
       <CardContent>
-        <img
-          src="https://flyingout.co.nz/cdn/shop/files/776782-Product-0-I-638586038404214147_460x@2x.webp?v=1726117485"
-          width="200"
-          alt="Movie"
-        />
-        <Typography variant="h5" gutterBottom>
-          Selected Movie: {selectedMovie}
-        </Typography>
-        <Typography variant="body1">
-          Selected Date: {tomorrowDate.toDateString()}
-        </Typography>
-        <Typography variant="h5" gutterBottom sx={{ marginTop: 2 }}>
-          Select a Seat
+        <Box display="flex" alignItems="center" justifyContent="center" mb={2}>
+          <img src="/matrix.webp" width="200" alt="Movie" />
+          <Typography variant="h5" gutterBottom sx={{ marginLeft: 2 }}>
+            {movieName}
+          </Typography>
+        </Box>
+
+        <Box
+          sx={{
+            backgroundColor: "#f0f0f0",
+            padding: "16px",
+            borderRadius: "8px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: 2,
+          }}
+        >
+          <DateRangeOutlinedIcon sx={{ marginRight: 1, color: "#4caf50" }} />
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: "bold", fontSize: "1.2rem" }}
+          >
+            Selected Session: {getSessionDateString()}
+          </Typography>
+        </Box>
+
+        <Typography
+          variant="h6"
+          sx={{
+            marginTop: 3,
+            fontWeight: "bold",
+            fontSize: "1.2rem",
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <ChairAltOutlinedIcon sx={{ marginRight: 1, color: "#3f51b5" }} />
+          Available Seats
         </Typography>
 
-        <Grid container spacing={2} justifyContent="center">
-          {seats.map((row, rowIndex) => (
-            <Grid item xs={12} key={rowIndex}>
-              <Grid container justifyContent="center" spacing={2}>
-                {row.map((seat, index) => (
-                  <Grid item key={seat}>
-                    <Button
-                      variant={selectedSeat === seat ? "contained" : "outlined"}
-                      color="primary"
-                      onClick={() => handleSeatSelect(seat)}
-                    >
-                      {seat}
-                    </Button>
-                  </Grid>
-                ))}
+        <Grid
+          container
+          spacing={2}
+          justifyContent="center"
+          sx={{ marginTop: 2 }}
+        >
+          {isLoading ? (
+            <Box sx={{ width: "100%" }}>
+              <LinearProgress />
+            </Box>
+          ) : (
+            seats.map(({ seatId, isBooked }) => (
+              <Grid item xs={3} sm={2} md={1} key={seatId}>
+                {/* Ensures responsive design with 4 columns on mobile */}
+                <Button
+                  variant={selectedSeat === seatId ? "contained" : "outlined"}
+                  color={!isBooked ? "primary" : "error"} // Different color for unavailable seats
+                  onClick={() => handleSeatSelect(seatId)}
+                  fullWidth
+                  disabled={isBooked} // Disable the button if the seat is booked
+                  sx={{
+                    fontWeight: "bold",
+                    padding: 1.5,
+                    borderRadius: 2,
+                    ...(selectedSeat === seatId && {
+                      color: "#fff",
+                    }),
+                  }}
+                >
+                  {seatId}
+                </Button>
               </Grid>
-            </Grid>
-          ))}
+            ))
+          )}
         </Grid>
 
         {selectedSeat && (
-          <Typography variant="body1" sx={{ marginTop: 2 }}>
-            Selected Seat: {selectedSeat}
-          </Typography>
+          <Box
+            sx={{
+              padding: "12px",
+              borderRadius: "8px",
+              marginTop: 2,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Typography
+              variant="body1"
+              sx={{ fontWeight: "bold", fontSize: "1.1rem", color: "green" }}
+            >
+              Selected Seat:{" "}
+              <span style={{ fontWeight: "bolder" }}>{selectedSeat}</span>
+            </Typography>
+          </Box>
         )}
 
         <Button
           variant="contained"
           color="primary"
           fullWidth
-          sx={{ marginTop: 3 }}
-          onClick={handleNextStep}
+          sx={{ marginTop: 3, padding: 1.5, borderRadius: 3 }}
+          onClick={nextButtonClick}
+          disabled={isMakingBooking}
+          endIcon={isMakingBooking ? <CircularProgress size={20} /> : null}
         >
-          Next Step
+          {isMakingBooking ? "Processing" : "Proceed to Next Step"}
         </Button>
       </CardContent>
     </Card>

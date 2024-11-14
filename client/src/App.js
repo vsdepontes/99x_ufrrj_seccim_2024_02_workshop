@@ -1,19 +1,19 @@
 // src/App.js
 import React, { useState } from "react";
-import { Container, Typography } from "@mui/material";
+import { Container } from "@mui/material";
 import HomePage from "./components/HomePage";
 import CheckoutPage from "./components/CheckoutPage";
 import ConfirmationPage from "./components/ConfirmationPage";
+import { NavBar } from "./components/NavBar";
 
 const App = () => {
   const [selectedStep, setSelectedStep] = useState(1); // Manage steps (1 = home, 2 = checkout, 3 = confirmation)
   const [selectedSeat, setSelectedSeat] = useState(null);
-  const [email, setEmail] = useState("");
+  const [paymentCode, setPaymentCode] = useState(undefined);
+  const [paymentInfo, setPaymentInfo] = useState({});
 
-  // Hardcoded selected movie and tomorrow's date
-  const selectedMovie = "The Matrix";
-  const tomorrowDate = new Date();
-  tomorrowDate.setDate(tomorrowDate.getDate() + 1); // Get tomorrow's date
+  // Hardcoded movie name
+  const movieName = "The Matrix";
 
   const handleSeatSelect = (seat) => {
     setSelectedSeat(seat);
@@ -27,8 +27,8 @@ const App = () => {
     }
   };
 
-  const handleBookingSuccess = (email) => {
-    setEmail(email);
+  const handleBookingSuccess = (payload) => {
+    setPaymentInfo(payload);
     setSelectedStep(3); // Move to confirmation step
   };
 
@@ -38,34 +38,29 @@ const App = () => {
   };
 
   return (
-    <Container>
-      <Typography variant="h3" align="center" gutterBottom>
-        Movie Booking App
-      </Typography>
-
-      {selectedStep === 1 && (
-        <HomePage
-          selectedMovie={selectedMovie}
-          tomorrowDate={tomorrowDate}
-          selectedSeat={selectedSeat}
-          handleSeatSelect={handleSeatSelect}
-          handleNextStep={handleNextStep}
-        />
-      )}
-      {selectedStep === 2 && (
-        <CheckoutPage
-          selectedMovie={selectedMovie}
-          tomorrowDate={tomorrowDate}
-          selectedSeat={selectedSeat}
-          email={email}
-          setEmail={setEmail}
-          handleBookingSuccess={handleBookingSuccess}
-        />
-      )}
-      {selectedStep === 3 && (
-        <ConfirmationPage email={email} handleGoHome={handleGoHome} />
-      )}
-    </Container>
+    <>
+      <NavBar />
+      <Container>
+        {selectedStep === 1 && (
+          <HomePage
+            movieName={movieName}
+            selectedSeat={selectedSeat}
+            handleSeatSelect={handleSeatSelect}
+            handleNextStep={handleNextStep}
+            setPaymentCode={setPaymentCode}
+          />
+        )}
+        {selectedStep === 2 && (
+          <CheckoutPage
+            movieName={movieName}
+            selectedSeat={selectedSeat}
+            handleBookingSuccess={handleBookingSuccess}
+            paymentCode={paymentCode}
+          />
+        )}
+        {selectedStep === 3 && <ConfirmationPage handleGoHome={handleGoHome} />}
+      </Container>
+    </>
   );
 };
 
